@@ -5,12 +5,20 @@ require('firebase/auth');
 
 firebase.initializeApp(config);
 
+const {
+  validateSignUpData,
+  validateLoginData,
+} = require('../utils/validators');
+
 exports.signUp = (req, res) => {
   const newUser = {
     email: req.body.email,
     password: req.body.password,
     confirmPassword: req.body.confirmPassword,
   };
+
+  const { valid, errors } = validateSignUpData(newUser);
+  if (!valid) return res.status(400).json(errors);
 
   let token, userId;
 
@@ -58,6 +66,10 @@ exports.logIn = (req, res) => {
     email: req.body.email,
     password: req.body.password,
   };
+
+  const { valid, errors } = validateLoginData(user);
+  if (!valid) return res.status(400).json(errors);
+
   firebase
     .auth()
     .signInWithEmailAndPassword(user.email, user.password)
